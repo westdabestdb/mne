@@ -1,7 +1,7 @@
 import { getPool } from "./db.js";
 import { MemoryEngine } from "./memory.js";
 import { HeuristicDistiller } from "./distiller.js";
-import { archiveTranscript, getTranscript, searchTranscriptChunks } from "./transcripts.js";
+import { archiveTranscript, getTranscript, searchTranscriptChunks, flattenForEmbedding } from "./transcripts.js";
 import type {
   Ctx, Session, Checkpoint, CheckpointKind, CheckpointPayload, CaptureItem, AddResult,
   DistilledMemory, ResumeResult, RecallHit, RawHit, HybridHit, ArchiveResult, TranscriptDoc, Embedder,
@@ -91,7 +91,8 @@ export class CaptureEngine {
     a: { sessionId?: string; transcriptId?: string; capture?: boolean },
   ): Promise<{ memories: DistilledMemory[]; captured?: number; sessionId?: string }> {
     const doc = await getTranscript(ctx, a);
-    const memories = this.distiller.distill(doc.content);
+    // Distill the readable, flattened transcript — not the raw JSONL envelope.
+    const memories = this.distiller.distill(flattenForEmbedding(doc.content, doc.format));
     let captured: number | undefined;
     if (a.capture) {
       for (const m of memories) await this.memory.add(ctx, { content: m.content, type: m.type, importance: m.importance, sessionId: doc.sessionId });

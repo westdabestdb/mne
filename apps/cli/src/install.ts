@@ -1,5 +1,6 @@
 import { detectAgents, home, AGENTS, type AgentDef } from "./agents.js";
 import { writeAgentConfig, removeAgentConfig } from "./writers.js";
+import { installHooks, removeHooks } from "./hooks.js";
 import { readConfig, writeConfig, clearConfig } from "./config.js";
 
 const DEFAULT_API = "http://localhost:8787";
@@ -32,6 +33,13 @@ export function cmdInstall(): number {
     writeAgentConfig(agent, path, apiUrl);
     console.log(`  ✓ ${agent.label.padEnd(12)} → ${path}`);
   }
+
+  // Auto-capture hooks (Claude Code only for now): archive on Stop, resume on SessionStart.
+  if (agents.some((a) => a.id === "claude-code")) {
+    installHooks();
+    console.log("  ✓ Auto-capture   → ~/.claude/settings.json (Stop + SessionStart hooks)");
+  }
+
   console.log(`\nWired ${agents.length} agent${agents.length > 1 ? "s" : ""} to Mnemia (${apiUrl}).`);
   console.log("Next: run `mnemia auth` to sign in.");
   return 0;
@@ -46,6 +54,11 @@ export function cmdUninstall(): number {
     } catch {
       /* best-effort */
     }
+  }
+  try {
+    removeHooks();
+  } catch {
+    /* best-effort */
   }
   clearConfig();
   console.log("Removed Mnemia from all agent configs and cleared the stored credential.");

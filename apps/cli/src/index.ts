@@ -1,5 +1,6 @@
 import { cmdInstall, cmdUninstall } from "./install.js";
 import { cmdAuth, cmdStatus } from "./auth.js";
+import { cmdHook } from "./hook-run.js";
 
 export const VERSION = "0.1.0";
 
@@ -30,6 +31,9 @@ export async function run(argv: string[]): Promise<number> {
       return cmdAuth();
     case "status":
       return cmdStatus();
+    case "hook":
+      // invoked by Claude Code lifecycle hooks: `mnemia hook <stop|session-start>`
+      return cmdHook(argv[1]);
     case "uninstall":
     case "disconnect":
       return cmdUninstall();

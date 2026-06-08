@@ -27,6 +27,37 @@ export async function getMe(apiUrl: string, token: string): Promise<{ userId: st
   return (await res.json()) as { userId: string | null; orgId: string; projectId: string };
 }
 
+// ── authenticated data-plane calls used by the auto-capture hooks ──────────────────
+export function archiveRaw(
+  apiUrl: string,
+  token: string,
+  body: { text: string; format?: string; repo?: string },
+): Promise<{ transcriptId: string; chunks: number; session?: { id: string } }> {
+  return authed(apiUrl, token, "archive", body);
+}
+
+export function reDistill(
+  apiUrl: string,
+  token: string,
+  body: { transcriptId?: string; sessionId?: string; capture?: boolean; repo?: string },
+): Promise<{ captured?: number }> {
+  return authed(apiUrl, token, "re_distill", body);
+}
+
+export function resume(apiUrl: string, token: string, body: { repo?: string }): Promise<{ brief?: string }> {
+  return authed(apiUrl, token, "resume", body);
+}
+
+async function authed<T>(apiUrl: string, token: string, path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${apiUrl}/v1/${path}`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`api ${path} failed: ${res.status} ${await res.text()}`);
+  return (await res.json()) as T;
+}
+
 async function post<T>(apiUrl: string, path: string, body: unknown): Promise<T> {
   const res = await fetch(`${apiUrl}/v1/${path}`, {
     method: "POST",
