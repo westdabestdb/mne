@@ -24,7 +24,10 @@ export default function LoginPage() {
       setError("Invalid email or password.");
       return;
     }
-    router.push("/");
+    // Honor a ?next= return target (e.g. the /connect device-approval round-trip).
+    // Only same-origin paths are allowed — guards against open redirects.
+    const next = new URLSearchParams(window.location.search).get("next");
+    router.push(next && next.startsWith("/") ? next : "/");
     router.refresh();
   }
 
