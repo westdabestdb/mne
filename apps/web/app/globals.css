@@ -1,72 +1,91 @@
-:root {
-  --bg: #0b0b0f;
-  --card: #15151c;
-  --border: #26262f;
-  --fg: #e7e7ea;
-  --muted: #9a9aa6;
-  --primary: #7c5cff;
+@import "tailwindcss";
+
+/* ── Mnemia brand palette (dark-only), exposed as Tailwind theme tokens ──
+   Utilities like bg-ground, text-ink, border-hair, text-signal derive from these. */
+@theme {
+  --color-ground: oklch(0.16 0.015 65);
+  --color-panel: oklch(0.205 0.018 62);
+  --color-raised: oklch(0.245 0.02 62);
+  --color-hair: oklch(0.33 0.02 62);
+  --color-ink: oklch(0.96 0.008 85);
+  --color-muted: oklch(0.71 0.013 72);
+  --color-faint: oklch(0.56 0.012 70);
+  --color-signal: oklch(0.85 0.13 82);
+  --color-signal-dim: oklch(0.62 0.09 82);
+  --color-cool: oklch(0.74 0.06 240);
+  /* caution: a distinct warm orange, pulled off the gold hue so "needs care"
+     never reads as "alive" the way signal gold does. */
+  --color-warn: oklch(0.75 0.15 58);
+
+  --font-display: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-spline-mono), ui-monospace, monospace;
 }
 
-* { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  padding: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+html {
+  scroll-behavior: smooth;
 }
 
-main {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-.card {
-  width: 100%;
-  max-width: 22rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 1.75rem;
+::selection {
+  background: oklch(0.85 0.13 82 / 0.25);
+  color: var(--color-ink);
 }
 
-.card h1 { margin: 0 0 0.25rem; font-size: 1.4rem; }
-.card .sub { margin: 0 0 1.25rem; color: var(--muted); font-size: 0.9rem; }
-
-label { display: block; font-size: 0.8rem; color: var(--muted); margin: 0.75rem 0 0.25rem; }
-
-input {
-  width: 100%;
-  padding: 0.6rem 0.7rem;
-  background: #0f0f15;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  color: var(--fg);
-  font-size: 0.95rem;
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-input:focus { outline: none; border-color: var(--primary); }
 
-button {
-  width: 100%;
-  margin-top: 1rem;
-  padding: 0.65rem;
-  background: var(--primary);
-  border: 0;
-  border-radius: 9px;
-  color: white;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
+.reveal {
+  animation: rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-button:disabled { opacity: 0.6; cursor: default; }
 
-.link { color: var(--primary); text-decoration: none; }
-.link:hover { text-decoration: underline; }
-.muted { color: var(--muted); font-size: 0.85rem; }
-.err { color: #ff6b6b; font-size: 0.85rem; margin-top: 0.5rem; }
-.row { margin-top: 1rem; font-size: 0.85rem; color: var(--muted); }
-.brand { color: var(--primary); }
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 2.6s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.flicker {
+  animation: flicker 3.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .draw,
+  .flicker {
+    animation: none;
+  }
+  .draw {
+    stroke-dashoffset: 0;
+  }
+}
