@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mnemia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mnemia}
+      POSTGRES_DB: ${POSTGRES_DB:-mnemia}
+    ports:
+      - "5432:5432"
+    volumes:
+      - mnemia_pgdata:/var/lib/postgresql/data
+      # Migrations run on FIRST init of a fresh volume, alphabetically (0001, 0002, …).
+      # `pnpm db:reset` drops the volume to re-run them.
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mnemia}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mnemia_pgdata:
